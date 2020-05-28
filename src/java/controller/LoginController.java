@@ -31,6 +31,7 @@ public class LoginController {
     
     private LoginDao loginDao;
     
+    //login with fingerprint string 
     @ResponseBody
     @RequestMapping(value = "/login/{agentId}/{password}/{fingerprint}", method = RequestMethod.GET)
     public User validateUser(@PathVariable String agentId, @PathVariable String password, @PathVariable String fingerprint) {
@@ -50,6 +51,19 @@ public class LoginController {
     public User getUserDetails(@PathVariable String imei){
         User user = loginDao.getUserDetails(imei);
         return user;
+    }
+    
+    //login without fingerprint string 
+    @ResponseBody
+    @RequestMapping(value = "/login/{agentId}/{password}", method = RequestMethod.GET)
+    public User validateUserCredential(@PathVariable String agentId, @PathVariable String password) {
+       User message = null;
+        try {
+            message = loginDao.validateUserCredential(agentId, password);
+        } catch (Exception e) {
+         message = new User();
+        }
+    return message;
     }
 
     public void setLoginDao(LoginDao loginDao) {

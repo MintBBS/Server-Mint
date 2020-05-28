@@ -15,9 +15,12 @@ import javax.crypto.spec.SecretKeySpec;
 import model.Account;
 import model.AgentAccount;
 import model.AgentTransaction;
+import model.BankResponse;
+
 import model.Transaction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -158,11 +161,100 @@ public class MintController {
     return tr;
     }
     
+    //updating cutomer phone number
+    @RequestMapping(value = "/mobileSeeding/{customerAadhar}/{number}", method = RequestMethod.GET)
+    public Integer updateMobileNumber(@PathVariable String customerAadhar, @PathVariable String number){
+        Integer result = mintDao.updateNumber(number, customerAadhar); 
+        return result;
+}
+ 
+    @RequestMapping(value="/resetPassword/{agentId}/{password}",method=RequestMethod.GET)
+    public int changePass(@PathVariable String agentId, @PathVariable String password){
+        int result = mintDao.forgetpass(agentId, password);
+        return result;
+    }   
+    
+    
+    
+    // -------------------------- card transaction --------------------------------
+
+
+    @RequestMapping(value = "/cBalanceEnquiry/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}" , method = RequestMethod.GET)
+public Account getBalanceByAccount(@PathVariable String cardNumber,@PathVariable String cardHolderName, @PathVariable String cvv, @PathVariable String expireDate, @PathVariable String pin) {
+RestTemplate restTemplate = new RestTemplate();
+Account account = restTemplate.getForObject(baseuri + "/cardBalanceEnquiry/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}", Account.class,new Object[] {cardNumber,cardHolderName,cvv,expireDate,pin});
+return account;
+    }
+
+@RequestMapping(value = "/cMiniStatement/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}", method= RequestMethod.GET)
+public List<Transaction> getminiStatement(@PathVariable String cardNumber,@PathVariable String cardHolderName,@PathVariable String cvv, @PathVariable String expireDate, @PathVariable String pin) {
+RestTemplate restTemplate = new RestTemplate();
+ResponseEntity<Transaction[]> response = restTemplate.getForEntity(baseuri+"/cardMiniStatement/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}",Transaction[].class, new Object[] {cardNumber,cardHolderName,cvv,expireDate,pin});
+ List<Transaction> list = Arrays.asList(response.getBody());
+return list;
+}
+
+ @RequestMapping(value="/rupaywithdraw/{agentId}/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}/{amount}", method = RequestMethod.GET)
+    public Transaction withdrawMoney(@PathVariable String agentId, @PathVariable String cardNumber,@PathVariable String cardHolderName,@PathVariable String cvv, @PathVariable String expireDate, @PathVariable String pin, @PathVariable Double amount){
+        
+        AgentAccount agentDetails = mintDao.getAccountDetails(agentId);
+      String agentAccount = agentDetails.getAccountNumber();
+       mintDao.updateAgentTransaction(agentId, cardNumber,cardHolderName,cvv,expireDate, pin, amount);
+      RestTemplate restTemplate = new RestTemplate();
+        Transaction customerTransaction = restTemplate.getForObject(baseuri + "/rupaywithdraw/{agentAccount}/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}/{amount}", Transaction.class, new Object[] {agentAccount, cardNumber,cardHolderName,cvv,expireDate, pin, amount});     
+        mintDao.updateCustomerTransaction(agentAccount, cardNumber,cardHolderName,cvv,expireDate, pin, amount);
+        return customerTransaction;      
+    }
+
+    
+    
+    
+    //------------------------Account Opening-----------------------
+    
+     @RequestMapping(value = "/create", method = RequestMethod.POST)
+    public BankResponse createAccount(@RequestBody AccountDetails newAccount) {
+        
+        BankResponse response=new BankResponse();
+        
+        if(mintDao.checkAadhar(newAccount.getAadhar())==0){
+                mintDao.create(newAccount);
+                response.setAccountDetails(newAccount);
+                response.setStatus(200);
+            }
+         else
+               response.setStatus(400);
+
+        
+        return response;
+    }
+        
+        
+    @RequestMapping(value = "/getAll", method = RequestMethod.GET)
+    public List<Account> getAllCustomer() {
+        List<Account> list = mintDao.readAll();
+        return list;
+    }  
+    
+    @RequestMapping(value = "/checkAadhar", method = RequestMethod.GET)
+    public int getCheckAadhar() {
+        int ac = mintDao.checkAadhar("254125635876");
+        return ac;
+    }
+/*     @RequestMapping(value = "/create", method = RequestMethod.POST)
+//    public BankResponse createAccount(@RequestBody Account newAccount) {
+////*        Student s = new Student(name,age,branch,regno);
+            if(accountDao.checkPan(pan)==false){
+                accountDao.create(newAccount);
+            }
+//        throw new BankExcception()
+//        return newAccount;
+//    }*/
     
     
     
     
-//    Encryption & Decryption Logic
+    
+    //    Encryption & Decryption Logic
     
     public static String encrypt(String plainText) {
         String encryptedText = "";
@@ -200,46 +292,5 @@ public class MintController {
         }
         return decryptedText;
     }
-    
-    
-    @RequestMapping(value="/resetPassword/{agentId}/{password}",method=RequestMethod.GET)
-    public int changePass(@PathVariable String agentId, @PathVariable String password){
-        int result = mintDao.forgetpass(agentId, password);
-        return result;
-    }   
-    
-    
-    
-    
-    // -------------------------- card transaction --------------------------------
-
-
-    @RequestMapping(value = "/cBalanceEnquiry/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}" , method = RequestMethod.GET)
-public Account getBalanceByAccount(@PathVariable String cardNumber,@PathVariable String cardHolderName, @PathVariable String cvv, @PathVariable String expireDate, @PathVariable String pin) {
-RestTemplate restTemplate = new RestTemplate();
-Account account = restTemplate.getForObject(baseuri + "/cardBalanceEnquiry/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}", Account.class,new Object[] {cardNumber,cardHolderName,cvv,expireDate,pin});
-return account;
-    }
-
-@RequestMapping(value = "/cMiniStatement/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}", method= RequestMethod.GET)
-public List<Transaction> getminiStatement(@PathVariable String cardNumber,@PathVariable String cardHolderName,@PathVariable String cvv, @PathVariable String expireDate, @PathVariable String pin) {
-RestTemplate restTemplate = new RestTemplate();
-ResponseEntity<Transaction[]> response = restTemplate.getForEntity(baseuri+"/cardMiniStatement/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}",Transaction[].class, new Object[] {cardNumber,cardHolderName,cvv,expireDate,pin});
- List<Transaction> list = Arrays.asList(response.getBody());
-return list;
-}
-
- @RequestMapping(value="/rupaywithdraw/{agentId}/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}/{amount}", method = RequestMethod.GET)
-    public Transaction withdrawMoney(@PathVariable String agentId, @PathVariable String cardNumber,@PathVariable String cardHolderName,@PathVariable String cvv, @PathVariable String expireDate, @PathVariable String pin, @PathVariable Double amount){
-        
-        AgentAccount agentDetails = mintDao.getAccountDetails(agentId);
-      String agentAccount = agentDetails.getAccountNumber();
-       mintDao.updateAgentTransaction(agentId, cardNumber,cardHolderName,cvv,expireDate, pin, amount);
-      RestTemplate restTemplate = new RestTemplate();
-        Transaction customerTransaction = restTemplate.getForObject(baseuri + "/rupaywithdraw/{agentAccount}/{cardNumber}/{cardHolderName}/{cvv}/{expireDate}/{pin}/{amount}", Transaction.class, new Object[] {agentAccount, cardNumber,cardHolderName,cvv,expireDate, pin, amount});     
-        mintDao.updateCustomerTransaction(agentAccount, cardNumber,cardHolderName,cvv,expireDate, pin, amount);
-        return customerTransaction;      
-    }
-
 
 }

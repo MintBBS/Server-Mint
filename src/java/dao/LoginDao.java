@@ -23,6 +23,7 @@ public class LoginDao {
         this.dataSource = dataSource;
     }
 
+    //login with fingerprint string
     public User validateUser(String agentId, String password, String decryptedFingerprint) {
        //System.out.print("DAO : " + fingerprint);
       jdbcTemplate = new JdbcTemplate(dataSource);
@@ -35,6 +36,22 @@ public class LoginDao {
         return message;
         
     }
+    
+    //login without fingerprint string
+    public User validateUserCredential(String agentId, String password) {
+       //System.out.print("DAO : " + fingerprint);
+      jdbcTemplate = new JdbcTemplate(dataSource);
+
+        String sql = "SELECT * FROM USERLOGIN WHERE AGENT_ID=? AND PASSWORD=?";
+        
+       User message = jdbcTemplate.queryForObject(sql, new Object[]{agentId, password}, BeanPropertyRowMapper.newInstance(User.class));  
+        
+       System.out.print(message);
+        return message;
+        
+    }
+    
+    
     
    public User getUserDetails(String imei){
        jdbcTemplate = new JdbcTemplate(dataSource);
