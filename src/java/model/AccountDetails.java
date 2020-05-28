@@ -9,8 +9,8 @@ package model;
  *
  * @author ROHAN
  */
-class AccountDetails {
-    private String name;
+public class AccountDetails {
+   private String name;
     private int age;
     private String dob;
     private String ifsc;
@@ -23,7 +23,6 @@ class AccountDetails {
     private String nomineeName;
     private String relationship;
     private String nomineeAddress;
-
 
     public AccountDetails(String name, int age, String dob, String ifsc, String aadhar, String email, String mobileNo, String fatherName, int annualIncome, String address, String nomineeName, String relationship, String nomineeAddress) {
         this.name = name;
@@ -41,9 +40,9 @@ class AccountDetails {
         this.nomineeAddress = nomineeAddress;
     }
 
-    public AccountDetails(){
-
-    }
+    
+    
+    public AccountDetails(){}
 
     public String getName() {
         return name;
@@ -147,6 +146,5 @@ class AccountDetails {
 
     public void setNomineeAddress(String nomineeAddress) {
         this.nomineeAddress = nomineeAddress;
-    }
-    
+    } 
 }

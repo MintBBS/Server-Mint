@@ -283,34 +283,5 @@ public List<AgentTransaction> readAllByDate() {
         String sqlPass="Update CUSTOMER set MOBILE_NUMBER=? where AADHAR_NUMBER=?";
         int result=jdbcTemplate.update(sqlPass,new Object[]{number, customerAadhar});
         return result;
-    }
-    
-    
-    //-------------Account Opening---------------------
-    public void create(AccountDetails account) {
-        String sql = "INSERT INTO ACCOUNT (NAME,AGE,DOB,IFSC,AADHAR,"
-                + "EMAIL,MOBILENO,FATHERNAME,ANNUALINCOME,ADDRESS,NOMINEENAME,RELATIONSHIP,NOMINEEADDRESS) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        jdbcTemplate = new JdbcTemplate(dataSource);
-        int i=jdbcTemplate.update(sql, new Object[]{account.getName(), account.getAge(),account.getDob()
-                ,account.getIfsc(),account.getAadhar(),account.getEmail(),account.getMobileNo(),account.getFatherName(),
-                account.getAnnualIncome(),account.getAddress(),account.getNomineeName(),account.getRelationship(),account.getNomineeAddress()});
-    }
-            
-     
-    public List<Account> readAll() {
-        jdbcTemplate = new JdbcTemplate(dataSource);
-        String sql = "SELECT * FROM ACCOUNT";
-        return jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(Account.class));
-    }
-    
-     public int checkAadhar(String aadharNumber) {
-        jdbcTemplate = new JdbcTemplate(dataSource);
-        String sql = "SELECT count(*) FROM ACCOUNT WHERE AADHAR=?";
-//        Account ac= jdbcTemplate.queryForObject(sql,new Object[]{aadharNumber},BeanPropertyRowMapper.newInstance(Account.class));
-            int count = jdbcTemplate.queryForObject(
-                        sql, new Object[] { aadharNumber }, Integer.class);
-        return count;
-        
-    }
-           
+    }      
 }

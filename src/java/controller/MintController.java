@@ -15,7 +15,6 @@ import javax.crypto.spec.SecretKeySpec;
 import model.Account;
 import model.AgentAccount;
 import model.AgentTransaction;
-import model.BankResponse;
 
 import model.Transaction;
 import org.springframework.http.ResponseEntity;
@@ -206,53 +205,6 @@ return list;
         return customerTransaction;      
     }
 
-    
-    
-    
-    //------------------------Account Opening-----------------------
-    
-     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public BankResponse createAccount(@RequestBody AccountDetails newAccount) {
-        
-        BankResponse response=new BankResponse();
-        
-        if(mintDao.checkAadhar(newAccount.getAadhar())==0){
-                mintDao.create(newAccount);
-                response.setAccountDetails(newAccount);
-                response.setStatus(200);
-            }
-         else
-               response.setStatus(400);
-
-        
-        return response;
-    }
-        
-        
-    @RequestMapping(value = "/getAll", method = RequestMethod.GET)
-    public List<Account> getAllCustomer() {
-        List<Account> list = mintDao.readAll();
-        return list;
-    }  
-    
-    @RequestMapping(value = "/checkAadhar", method = RequestMethod.GET)
-    public int getCheckAadhar() {
-        int ac = mintDao.checkAadhar("254125635876");
-        return ac;
-    }
-/*     @RequestMapping(value = "/create", method = RequestMethod.POST)
-//    public BankResponse createAccount(@RequestBody Account newAccount) {
-////*        Student s = new Student(name,age,branch,regno);
-            if(accountDao.checkPan(pan)==false){
-                accountDao.create(newAccount);
-            }
-//        throw new BankExcception()
-//        return newAccount;
-//    }*/
-    
-    
-    
-    
     
     //    Encryption & Decryption Logic
     
