@@ -10,13 +10,17 @@ package model;
  * @author ROHAN
  */
 public class BankResponse {
-AccountDetails accountDetails;
-int status;
+    AccountDetails accountDetails;
+   int status;
 
     public BankResponse(AccountDetails accountDetails, int status) {
         this.accountDetails = accountDetails;
         this.status = status;
     }
+   
+
+   
+    public BankResponse() {}
 
     public AccountDetails getAccountDetails() {
         return accountDetails;
@@ -26,11 +30,11 @@ int status;
         this.accountDetails = accountDetails;
     }
 
-    public Integer getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 }
